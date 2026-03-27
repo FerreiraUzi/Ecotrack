@@ -1,15 +1,35 @@
 class AuthService {
-  final String usuarioCadastrado = "admin@ecotrack.com";
-  final String senhaCadastrada = "123456";
+  final List<Map<String, String>> _users = [
+    {
+      "email": "admin@ecotrack.com",
+      "senha": "123456",
+    }
+  ];
 
-  String? login(String email, String senha){
-    if(email != usuarioCadastrado){
-      return "Usuário não Cadastrado";
+  /// LOGIN
+  String? login(String email, String senha) {
+    for (var user in _users) {
+      if (user["email"] == email && user["senha"] == senha) {
+        return null; // sucesso
+      }
     }
-    if(senha != senhaCadastrada){
-      return "Usuário ou senha incorreta";
-    }
-    return null;
+
+    return "Email ou senha incorretos";
   }
 
+  /// CADASTRO
+  String? register(String email, String senha) {
+    for (var user in _users) {
+      if (user["email"] == email) {
+        return "Usuário já cadastrado";
+      }
+    }
+
+    _users.add({
+      "email": email,
+      "senha": senha,
+    });
+
+    return null; // sucesso
+  }
 }

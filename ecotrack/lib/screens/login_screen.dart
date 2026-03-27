@@ -1,6 +1,10 @@
+import 'package:app_ecotrack_3_b/screens/register_screen.dart';
+import 'package:app_ecotrack_3_b/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const routeName = '/login';
+
   const LoginScreen({super.key});
 
   @override
@@ -8,9 +12,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formkey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController senhaController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+
+  final AuthService authService = AuthService();
+
+  bool ocultarSenha = true;
 
   @override
   Widget build(BuildContext context) {
@@ -18,29 +27,29 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(
-          key: _formkey,
+          key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            //crossAxisAlignment: CrossAxisAlignment.,
             children: [
+
+              /// LOGO (igual ao seu estilo)
               Center(
                 child: Stack(
                   children: [
                     Image.asset(
                       "logo_ecotrack.png",
                       height: 150,
-                      fit: BoxFit.cover,
                     ),
                     Container(
                       width: 155,
                       height: 155,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            const Color.fromARGB(100, 120, 173, 121),
-                            const Color.fromARGB(0, 172, 41, 41),
+                            Color.fromARGB(100, 120, 173, 121),
+                            Color.fromARGB(0, 172, 41, 41),
                           ],
                         ),
                       ),
@@ -48,73 +57,94 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 150),
+
+              const SizedBox(height: 60),
+
+              /// EMAIL
               TextFormField(
                 controller: emailController,
                 decoration: InputDecoration(
-                  labelText: 'E-mail',
-                  prefix: Icon(Icons.email),
+                  labelText: "E-mail",
+                  prefixIcon: const Icon(Icons.email),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 5, 110, 14),
-                      width: 6,
-                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 5, 110, 14),
-                      width: 3,
+                      color: Colors.green,
+                      width: 2,
                     ),
                   ),
                 ),
                 validator: (value) {
-                  if(value == null || value.isEmpty){
-                    return "Digite seu E-mail";
-                  }
-                  if(!value.contains("@") || value.contains(".")){
-                    return "E-mail Inválido";
+                  if (value == null || value.isEmpty) {
+                    return "Digite o e-mail";
                   }
                   return null;
-                } ,
+                },
               ),
-              SizedBox(height: 16),
+
+              const SizedBox(height: 16),
+
+              /// SENHA
               TextFormField(
+                controller: senhaController,
+                obscureText: ocultarSenha,
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefix: Icon(Icons.lock),
+                  labelText: "Senha",
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      ocultarSenha
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        ocultarSenha = !ocultarSenha;
+                      });
+                    },
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 5, 110, 14),
-                      width: 6,
-                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 5, 110, 14),
-                      width: 3,
+                      color: Colors.green,
+                      width: 2,
                     ),
                   ),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Digite a senha";
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 16),
+
+              const SizedBox(height: 20),
+
+              /// BOTÃO CRIAR CONTA
               SizedBox(
                 height: 50,
                 width: double.infinity,
-                child: ElevatedButton(                  
-                  style: ButtonStyle(                    
-                    backgroundColor: WidgetStatePropertyAll<Color>(
-                      Colors.green,
-                    ),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.green),
                   ),
-                  onPressed: () {},
-                  child: Text(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      RegisterScreen.routeName,
+                    );
+                  },
+                  child: const Text(
                     "Criar Conta",
                     style: TextStyle(
-                      fontFamily: "Arial",
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -122,21 +152,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+
+              const SizedBox(height: 16),
+
+              /// BOTÃO LOGIN
               SizedBox(
                 height: 50,
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll<Color>(
-                      Colors.green,
-                    ),
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.green),
                   ),
-                  onPressed: () {},
-                  child: Text(
+                  onPressed: validarLogin,
+                  child: const Text(
                     "Entrar",
                     style: TextStyle(
-                      fontFamily: "Arial",
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -149,5 +180,22 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void validarLogin() {
+    if (_formKey.currentState!.validate()) {
+      final resultado = authService.login(
+        emailController.text.trim(),
+        senhaController.text.trim(),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            resultado ?? "Login realizado com sucesso!",
+          ),
+        ),
+      );
+    }
   }
 }
